@@ -17,6 +17,7 @@
 
 #define Default_Payload 64
 #define Default_Fields_Amt 8
+#define Default_NumRPCCallbacks 8
 
 class ThingsBoardDefaultLogger;
 
@@ -24,7 +25,8 @@ class ThingsBoardDefaultLogger;
 class Telemetry {
   template <size_t PayloadSize = Default_Payload,
             size_t MaxFieldsAmt = Default_Fields_Amt,
-            typename Logger = ThingsBoardDefaultLogger>
+            typename Logger = ThingsBoardDefaultLogger,
+            size_t NumRPCCallbacks = Default_NumRPCCallbacks>
   friend class ThingsBoardSized;
 #ifndef ESP8266
   template <size_t PayloadSize = Default_Payload,
@@ -92,7 +94,7 @@ using RPC_Data = JsonVariant;
 
 // RPC callback wrapper
 class RPC_Callback {
-  template <size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
+  template <size_t PayloadSize, size_t MaxFieldsAmt, typename Logger, size_t NumRPCCallbacks>
   friend class ThingsBoardSized;
 public:
 
@@ -120,7 +122,7 @@ public:
 };
 
 // ThingsBoardSized client class
-template <size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
+template <size_t PayloadSize, size_t MaxFieldsAmt, typename Logger, size_t NumRPCCallbacks>
 class ThingsBoardSized
 {
 public:
@@ -371,7 +373,7 @@ private:
   }
 
   PubSubClient m_client;              // PubSub MQTT client instance.
-  RPC_Callback m_rpcCallbacks[8];     // RPC callbacks array
+  RPC_Callback m_rpcCallbacks[NumRPCCallbacks];     // RPC callbacks array, using template param for size
 
   // PubSub client cannot call a method when message arrives on subscribed topic.
   // Only free-standing function is allowed.
@@ -388,8 +390,8 @@ private:
   }
 };
 
-template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger>
-ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger>::m_subscribedInstance;
+template<size_t PayloadSize, size_t MaxFieldsAmt, typename Logger, size_t NumRPCCallbacks>
+ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger, NumRPCCallbacks> *ThingsBoardSized<PayloadSize, MaxFieldsAmt, Logger, NumRPCCallbacks>::m_subscribedInstance;
 
 #ifndef ESP8266
 
